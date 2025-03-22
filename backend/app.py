@@ -16,8 +16,7 @@ app.secret_key = os.urandom(24)  # Replace with your secret key
 # Your OAuth 2.0 credentials
 CLIENT_ID = os.environ["CLIENT_ID"]
 CLIENT_SECRET = os.environ["CLIENT_SECRET"]
-BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
-REDIRECT_URI = f'https://clouddiagramer-463934685941.northamerica-northeast2.run.app/auth/callback'
+REDIRECT_URI = 'https://clouddiagramer-463934685941.northamerica-northeast2.run.app/auth/callback'
 SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 AUTH_URI = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URI = 'https://oauth2.googleapis.com/token'
