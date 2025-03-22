@@ -93,5 +93,29 @@ async def healthcheck():
     return {"status": "ok"}
 
 
+@app.get('/projects/<project_code>/compute-instances')
+def get_compute_instances(project_code):
+    access_token = session.get('access_token')
+    if not access_token:
+        return redirect(url_for('index'))  # Redirect to login if not authenticated
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json'
+    }
+
+    # The specific CloudAsset API URL with query parameters
+    api_url = f'https://cloudasset.googleapis.com/v1/projects/{project_code}/assets?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
+    
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()  # Return JSON response if successful
+    else:
+        return {'error': 'Failed to fetch compute instances', 'details': response.text}, response.status_code
+
+# ...existing code...
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
