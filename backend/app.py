@@ -105,6 +105,7 @@ def get_compute_instances(project_code):
     }
 
     # The specific CloudAsset API URL with query parameters
+    # ap = f'https://cloudasset.googleapis.com/v1/projects/{project_code}/assets?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
     api_url = f'https://cloudasset.googleapis.com/v1/projects/{project_code}/assets?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
     
     response = requests.get(api_url, headers=headers)
