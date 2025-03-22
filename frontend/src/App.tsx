@@ -16,7 +16,7 @@ function App() {
     localStorage.getItem("google_access_token")
   );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-  const [user, setUser] = useState<any>(null);
+  const [, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
