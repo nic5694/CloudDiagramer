@@ -16,7 +16,7 @@ app.secret_key = os.urandom(24)  # Replace with your secret key
 # Your OAuth 2.0 credentials
 CLIENT_ID = os.environ["CLIENT_ID"]
 CLIENT_SECRET = os.environ["CLIENT_SECRET"]
-REDIRECT_URI = 'http://localhost:5000/auth/callback'
+REDIRECT_URI = 'http://localhost:8000/auth/callback'
 SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 AUTH_URI = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URI = 'https://oauth2.googleapis.com/token'
@@ -88,6 +88,10 @@ def getProjectDetails(projectId):
         return {'error': 'Failed to fetch project assets', 'details': response.text}, response.status_code
 
     
+@app.get("/healthcheck")
+async def healthcheck():
+    return {"status": "ok"}
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
