@@ -6,7 +6,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./backend:/app
+    environment:
+      - PYTHONPATH=/app
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./backend/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: ["gunicorn", "--bind", "0.0.0.0:8000", "app:app", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-", "--reload"]
 
   fe:
     build:

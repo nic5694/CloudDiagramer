@@ -1,0 +1,7 @@
+__pycache__
+*.pyc
+.env
+*.png
+*.puml
+!plantuml.jar
+.DS_Store
