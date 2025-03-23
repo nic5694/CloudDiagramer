@@ -8,8 +8,10 @@ from dotenv import load_dotenv
 import zlib
 from data_extraction import load_unfilteredJSON, generate_notes_with_cohere
 from vm_template import generate_puml_from_assets
+from flask_cors import CORS 
 load_dotenv()
 
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Replace with your secret key
 
