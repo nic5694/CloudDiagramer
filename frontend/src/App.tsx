@@ -6,6 +6,8 @@ const GOOGLE_CLIENT_ID =
   "463934685941-85t1csm80b9apqgp91prph9d4k3jbmks.apps.googleusercontent.com";
 const REDIRECT_URI = window.location.origin;
 const SCOPE = "https://www.googleapis.com/auth/cloud-platform";
+const API_BASE_URL =
+  "https://frontendgcpdiagrammer-463934685941.northamerica-northeast2.run.app";
 
 function App() {
   const [projectList, setProjectList] = useState<ProjectInterface[]>([]);
@@ -19,7 +21,13 @@ function App() {
   const [, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [diagramUrl, setDiagramUrl] = useState<string | null>(null);
+  const [diagramLoading, setDiagramLoading] = useState<boolean>(false);
+  const [diagramError, setDiagramError] = useState<string | null>(null);
 
+  setDiagramLoading(true);
+  setDiagramError(null);
+  setDiagramUrl(null);
   // Check for token in URL hash on page load
   useEffect(() => {
     const hash = window.location.hash;
@@ -79,6 +87,44 @@ function App() {
     const project =
       projectList.find((p) => p.projectNumber === projectNumber) || null;
     setSelectedProject(project);
+  };
+
+  const generateDiagram = async () => {
+    if (!selectedProject || !token) return;
+
+    setDiagramLoading(true);
+    setDiagramError(null);
+    setDiagramUrl(null);
+
+    try {
+      // Call the backend API to generate the diagram
+      const response = await fetch(
+        `${API_BASE_URL}/projects/${selectedProject.projectId}/generatepuml`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate diagram: ${response.status}`);
+      }
+
+      // Assuming the backend returns a URL to view the diagram
+      const data = await response.json();
+
+      if (data.imageUrl) {
+        setDiagramUrl(data.imageUrl);
+      } else {
+        setDiagramError("No diagram URL returned from the server");
+      }
+    } catch (err) {
+      console.error("Error generating diagram:", err);
+      setDiagramError("Failed to generate diagram. Please try again.");
+    } finally {
+      setDiagramLoading(false);
+    }
   };
 
   const fetchProjects = async (accessToken: string) => {
@@ -187,6 +233,7 @@ function App() {
                     className="view-resources-button"
                     onClick={() => {
                       // You can implement a function to view the project's resources
+
                       console.log(
                         "View resources for project:",
                         selectedProject
@@ -203,8 +250,48 @@ function App() {
           )}
         </div>
       )}
+      {selectedProject && (
+        <div className="project-details">
+          <h3>Selected Project Details</h3>
+          <p>
+            <strong>Name:</strong> {selectedProject.projectName}
+          </p>
+          <p>
+            <strong>Project Number:</strong> {selectedProject.projectNumber}
+          </p>
+          <button
+            className="view-resources-button"
+            onClick={generateDiagram}
+            disabled={diagramLoading}
+          >
+            {diagramLoading ? "Generating..." : "View Resources Diagram"}
+          </button>
+
+          {diagramError && <div className="error-message">{diagramError}</div>}
+
+          {diagramUrl && (
+            <div className="diagram-container">
+              <h4>Resource Diagram</h4>
+              <div className="diagram-wrapper">
+                <img
+                  src={diagramUrl}
+                  alt="Resource Diagram"
+                  className="resource-diagram"
+                />
+              </div>
+              <a
+                href={diagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="open-diagram-button"
+              >
+                Open in New Tab
+              </a>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
-
 export default App;
