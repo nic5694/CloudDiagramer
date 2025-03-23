@@ -6,7 +6,7 @@ import json
 import os
 from dotenv import load_dotenv
 import zlib
-
+from data_extraction import load_unfilteredJSON, generate_notes_with_cohere
 load_dotenv()
 
 app = Flask(__name__)
@@ -36,11 +36,29 @@ def generate_puml(projectId):
     }
 
     # Construct the API URL correctly
+    #api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
+    #unfiltered_data = requests.get(api_url, headers=headers)
+    #initnial_json_clean = load(unfiltered_data)
+    #for i in initnial_json_clean:
+     #   i.cohere = generate_notes_with_cohere(i)
+    #return initnial_json_clean
+    
+### New Loop
     api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
-    response = requests.get(api_url, headers=headers)
-    
-    
+    try:
+        unfiltered_data = requests.get(api_url, headers=headers)
+        unfiltered_data.raise_for_status()  # Raise an exception for HTTP errors
+        initial_json_clean = unfiltered_data.json()
+        initial_json_clean = load_unfilteredJSON(json.dumps(initial_json_clean))        
+        for i in initial_json_clean:  # Use .get() to safely access 'assets'
+            i['cohere'] = generate_notes_with_cohere(i)
+            print("This is the i", i)
+        
+        return initial_json_clean
+    except requests.exceptions.RequestException as e:
+        return {'error': 'Failed to fetch project assessts','details': str(e)},500
 
+    
 
 def encode_plantuml(text):
     """
