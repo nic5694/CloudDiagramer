@@ -3,4 +3,4 @@ flask
 requests
 gunicorn
 google-auth
-google.cloud
+six==1.16.0
