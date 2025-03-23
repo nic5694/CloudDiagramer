@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 import zlib
 from data_extraction import load_unfilteredJSON, generate_notes_with_cohere
+from vm_template import generate_puml_from_assets
 load_dotenv()
 
 app = Flask(__name__)
@@ -27,29 +28,38 @@ def generate_puml(projectId):
     assert projectId == request.view_args['projectId']
     access_token = session.get('access_token')
     if not access_token:
-        return redirect(url_for('index'))  # Redirect to login if not authenticated
+        return redirect(url_for('index'))
     
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Accept': 'application/json'
     }
-
-    # Construct the API URL correctly
-    api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
+    
+    api_url = (
+        f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
+        '?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
+    )
+    
     try:
-        unfiltered_data = requests.get(api_url, headers=headers)
-        unfiltered_data.raise_for_status()  # Raise an exception for HTTP errors
-        initial_json_clean = unfiltered_data.json()
-        initial_json_clean = load_unfilteredJSON(json.dumps(initial_json_clean))        
-        print("This is the size of the supposedly cleaned json", len(initial_json_clean))
-        for i in initial_json_clean:  # Use .get() to safely access 'assets'
-            i['cohere'] = generate_notes_with_cohere(i)
-            print("This is the i", i)
+        response = requests.get(api_url, headers=headers)
+        response.raise_for_status()
+        raw_data = response.json()
+        initial_json_clean = load_unfilteredJSON(json.dumps(raw_data))
+        print("Cleaned assets count:", len(initial_json_clean))
         
-        return jsonify(initial_json_clean)  # Make sure to return a proper response
+        # Optionally, enhance each asset (e.g., add notes)
+        for asset in initial_json_clean:
+            asset['cohere'] = generate_notes_with_cohere(asset)
+        
+        if not initial_json_clean:
+            return jsonify({'error': 'No assets found for project'}), 404
+        
+        # Generate PUML code based on the list of assets.
+        puml_output = generate_puml_from_assets(initial_json_clean)
+        return puml_output, 200, {'Content-Type': 'text/plain'}
+    
     except requests.exceptions.RequestException as e:
         return jsonify({'error': 'Failed to fetch project assets', 'details': str(e)}), 500
-
 # @app.get('/projects/<projectId>/generatepuml')
 # def generate_puml(projectId):
 #     assert projectId == request.view_args['projectId']
