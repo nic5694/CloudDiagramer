@@ -584,6 +584,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { ProjectInterface } from "./model/projectInterface";
+// import axios from "axios";
 
 const GOOGLE_CLIENT_ID =
   "463934685941-85t1csm80b9apqgp91prph9d4k3jbmks.apps.googleusercontent.com";
@@ -704,6 +705,9 @@ function App() {
       // console.log("Response:", response);
       const data = await response.json();
 
+      // axios.post(`${API_BASE_URL}/generateUml`, data).then((response) => {
+      //   console.log(response);
+      // });
       // Send the data to the backend to generate the diagram
       const diagramResponse = await fetch(`${API_BASE_URL}/generateUml`, {
         method: "POST",
@@ -711,17 +715,21 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }).then((res) => {
-        console.log("PRE RESPONSE:");
-        console.log("Response:", res);
       });
+
       console.log("DIA RESPONSE:", diagramResponse);
 
-      // if (!diagramResponse.ok) {
-      //   throw new Error(
-      //     `Failed to generate diagram: ${diagramResponse.status}`
-      //   );
-      // }
+      if (!diagramResponse.ok) {
+        throw new Error(
+          `Failed to generate diagram: ${diagramResponse.status}`
+        );
+      }
+      diagramResponse.json().then((data) => {
+        setDiagramUrl(data.imageUrl);
+        console.log("DIA DATA:", data);
+        console.log("DIA URL:", diagramUrl);
+        console.log("DIA image url:", data.imageUrl);
+      });
 
       // const diagramData = await diagramResponse;
       // console.log("Diagram data:", diagramData);
