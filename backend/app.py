@@ -22,7 +22,6 @@ AUTH_URI = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URI = 'https://oauth2.googleapis.com/token'
 
 
-
 @app.get('/projects/<projectId>/generatepuml')
 def generate_puml(projectId):
     assert projectId == request.view_args['projectId']
@@ -36,27 +35,54 @@ def generate_puml(projectId):
     }
 
     # Construct the API URL correctly
-    #api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
-    #unfiltered_data = requests.get(api_url, headers=headers)
-    #initnial_json_clean = load(unfiltered_data)
-    #for i in initnial_json_clean:
-     #   i.cohere = generate_notes_with_cohere(i)
-    #return initnial_json_clean
-    
-### New Loop
-    api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
+    api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets?assetTypes=compute.googleapis.com%2FInstance&contentType=RESOURCE'
     try:
         unfiltered_data = requests.get(api_url, headers=headers)
         unfiltered_data.raise_for_status()  # Raise an exception for HTTP errors
         initial_json_clean = unfiltered_data.json()
         initial_json_clean = load_unfilteredJSON(json.dumps(initial_json_clean))        
+        print("This is the size of the supposedly cleaned json", len(initial_json_clean))
         for i in initial_json_clean:  # Use .get() to safely access 'assets'
             i['cohere'] = generate_notes_with_cohere(i)
             print("This is the i", i)
         
-        return initial_json_clean
+        return jsonify(initial_json_clean)  # Make sure to return a proper response
     except requests.exceptions.RequestException as e:
-        return {'error': 'Failed to fetch project assessts','details': str(e)},500
+        return jsonify({'error': 'Failed to fetch project assets', 'details': str(e)}), 500
+
+# @app.get('/projects/<projectId>/generatepuml')
+# def generate_puml(projectId):
+#     assert projectId == request.view_args['projectId']
+#     access_token = session.get('access_token')
+#     if not access_token:
+#         return redirect(url_for('index'))  # Redirect to login if not authenticated
+    
+#     headers = {
+#         'Authorization': f'Bearer {access_token}',
+#         'Accept': 'application/json'
+#     }
+
+#     # Construct the API URL correctly
+#     #api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
+#     #unfiltered_data = requests.get(api_url, headers=headers)
+#     #initnial_json_clean = load(unfiltered_data)
+#     #for i in initnial_json_clean:
+#      #   i.cohere = generate_notes_with_cohere(i)
+#     #return initnial_json_clean
+
+#     api_url = f'https://cloudasset.googleapis.com/v1/projects/{projectId}/assets'
+#     try:
+#         unfiltered_data = requests.get(api_url, headers=headers)
+#         unfiltered_data.raise_for_status()  # Raise an exception for HTTP errors
+#         initial_json_clean = unfiltered_data.json()
+#         initial_json_clean = load_unfilteredJSON(json.dumps(initial_json_clean))        
+#         for i in initial_json_clean:  # Use .get() to safely access 'assets'
+#             i['cohere'] = generate_notes_with_cohere(i)
+#             print("This is the i", i)
+        
+#         return initial_json_clean
+#     except requests.exceptions.RequestException as e:
+#         return {'error': 'Failed to fetch project assessts','details': str(e)},500
 
     
 
