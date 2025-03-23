@@ -725,10 +725,10 @@ function App() {
         );
       }
       diagramResponse.json().then((data) => {
-        setDiagramUrl(data.imageUrl);
+        setDiagramUrl(data.diagram_url);
         console.log("DIA DATA:", data);
-        console.log("DIA URL:", diagramUrl);
-        console.log("DIA image url:", data.imageUrl);
+        console.log("DIA URL:", data.diagram_url);
+        console.log("DIA image url:", data.diagram_url);
       });
 
       // const diagramData = await diagramResponse;
