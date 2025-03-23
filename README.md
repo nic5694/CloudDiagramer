@@ -11,6 +11,21 @@ CloudDiagramer is a powerful tool designed to create and visualize cloud archite
 ✅ Customizable components and connection styles  
 ✅ Open-source and actively maintained  
 
+## 🚀 Technologies Used
+### Programming Languages
+- **Python** (Backend processing, API integration)
+- **React** (Frontend UI framework)
+- **JavaScript & TypeScript** (Frontend development)
+- **HTML** (UI structure)
+- **PlantUML** (Diagram generation and visualization)
+
+### APIs
+- **Google Cloud Infrastructure API** (Fetch cloud resources and metadata)
+- **Cohere API** (AI-based insights and recommendations)
+
+### Deployment & Infrastructure
+- **Docker** (Containerization for easy deployment)
+
 ---
 
 ## 🛠️ Installation
