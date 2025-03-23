@@ -3,3 +3,4 @@ flask
 requests
 gunicorn
 google-auth
+google.cloud
